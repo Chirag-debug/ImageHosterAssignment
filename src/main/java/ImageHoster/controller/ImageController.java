@@ -105,6 +105,8 @@ public class ImageController {
             return "images/edit";
         } else {
             model.addAttribute("editError", errorMessage);
+            List<Tag> tags = image.getTags();
+            model.addAttribute("tags", tags); // tags went missing after clicking Edit button so put this statement to retain tags
             return "images/image";
         }
     }
