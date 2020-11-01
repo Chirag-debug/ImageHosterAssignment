@@ -92,13 +92,21 @@ public class ImageController {
     //The method first needs to convert the list of all the tags to a string containing all the tags separated by a comma and then add this string in a Model type object
     //This string is then displayed by 'edit.html' file as previous tags of an image
     @RequestMapping(value = "/editImage")
-    public String editImage(@RequestParam("imageId") Integer imageId, Model model) {
+    public String editImage(@RequestParam("imageId") Integer imageId, Model model, HttpSession session) {
         Image image = imageService.getImage(imageId);
 
-        String tags = convertTagsToString(image.getTags());
         model.addAttribute("image", image);
-        model.addAttribute("tags", tags);
-        return "images/edit";
+        String errorMessage = "Error";
+        User user = imageService.getImage(imageId).getUser();
+        User sessionUser = (User)session.getAttribute("loggeduser");
+        if(user != null && user.getId().equals(sessionUser.getId())) {
+            String tags = convertTagsToString(image.getTags());
+            model.addAttribute("tags", tags);
+            return "images/edit";
+        } else {
+            model.addAttribute("editError", errorMessage);
+            return "images/image";
+        }
     }
 
     //This controller method is called when the request pattern is of type 'images/edit' and also the incoming request is of PUT type
@@ -113,7 +121,8 @@ public class ImageController {
     //The method also receives tags parameter which is a string of all the tags separated by a comma using the annotation @RequestParam
     //The method converts the string to a list of all the tags using findOrCreateTags() method and sets the tags attribute of an image as a list of all the tags
     @RequestMapping(value = "/editImage", method = RequestMethod.PUT)
-    public String editImageSubmit(@RequestParam("file") MultipartFile file, @RequestParam("imageId") Integer imageId, @RequestParam("tags") String tags, Image updatedImage, HttpSession session) throws IOException {
+    public String editImageSubmit(@RequestParam("file") MultipartFile file, @RequestParam("imageId") Integer imageId,
+                                  @RequestParam("tags") String tags, Image updatedImage, HttpSession session) throws IOException {
 
         Image image = imageService.getImage(imageId);
         String updatedImageData = convertUploadedFileToBase64(file);
@@ -132,7 +141,7 @@ public class ImageController {
         updatedImage.setDate(new Date());
 
         imageService.updateImage(updatedImage);
-        return "redirect:/images/" + updatedImage.getTitle();
+        return "redirect:/images";
     }
 
 
