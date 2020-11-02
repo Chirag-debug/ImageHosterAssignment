@@ -50,6 +50,7 @@ public class ImageController {
         Image image = imageService.getImage(imageId);
         model.addAttribute("image", image);
         model.addAttribute("tags", image.getTags());
+        model.addAttribute("comments", image.getComments());
         return "images/image";
     }
 
@@ -96,7 +97,7 @@ public class ImageController {
         Image image = imageService.getImage(imageId);
 
         model.addAttribute("image", image);
-        String errorMessage = "Error";
+        String errorMessage = "Only the owner of the image can edit the image";
         User user = imageService.getImage(imageId).getUser();
         User sessionUser = (User)session.getAttribute("loggeduser");
         if(user != null && user.getId().equals(sessionUser.getId())) {
@@ -107,6 +108,7 @@ public class ImageController {
             model.addAttribute("editError", errorMessage);
             List<Tag> tags = image.getTags();
             model.addAttribute("tags", tags); // tags went missing after clicking Edit button so put this statement to retain tags
+            model.addAttribute("comments", image.getComments());
             return "images/image";
         }
     }
@@ -158,7 +160,8 @@ public class ImageController {
         // setting model attributes first and then deleting later if user matches with sessionUser
         model.addAttribute("image", image);
         model.addAttribute("tags",tags);
-        String errorMessage = "Error";
+        model.addAttribute("comments", image.getComments());
+        String errorMessage = "Only the owner of the image can delete the image";
         User user = imageService.getImage(imageId).getUser();
         User sessionUser = (User)session.getAttribute("loggeduser");
         if (user != null && user.getId().equals(sessionUser.getId())) {

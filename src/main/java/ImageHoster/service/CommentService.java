@@ -11,7 +11,7 @@ public class CommentService {
     @Autowired
     private CommentRepository commentRepository;
 
-    public Comment CreateComment(Comment newComment) {
+    public Comment createComment(Comment newComment) {
         return commentRepository.createComment(newComment);
     }
 }
