@@ -37,6 +37,9 @@ public class Image {
     @Column(name = "date")
     private Date date;
 
+    @OneToMany(mappedBy = "image",cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private List<Comment> comments = new ArrayList<Comment>();
+
     //The 'images' table is mapped to 'users' table with Many:One mapping
     //One image can have only one user (owner) but one user can have multiple images
     //FetchType is EAGER
@@ -125,5 +128,13 @@ public class Image {
 
     public void setTags(List<Tag> tags) {
         this.tags = tags;
+    }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
     }
 }
