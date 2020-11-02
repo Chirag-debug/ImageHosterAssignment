@@ -40,9 +40,21 @@ public class UserController {
     //This controller method is called when the request pattern is of type 'users/registration' and also the incoming request is of POST type
     //This method calls the business logic and after the user record is persisted in the database, directs to login page
     @RequestMapping(value = "users/registration", method = RequestMethod.POST)
-    public String registerUser(User user) {
-        userService.registerUser(user);
-        return "redirect:/users/login";
+    public String registerUser(User user, Model model) {
+        //userService.registerUser(user);
+
+        String password = user.getPassword();
+        if(checkWeakPassword(password)) {
+            model.addAttribute("User", user);
+            String error = "Password must contain atleast 1 alphabet, 1 number & 1 special character";
+            model.addAttribute("passwordTypeError", error);
+            return "users/registration";
+        }
+        else {
+            userService.registerUser(user);
+            return "users/login";
+        }
+        //return "redirect:/users/login";
     }
 
     //This controller method is called when the request pattern is of type 'users/login'
@@ -78,5 +90,34 @@ public class UserController {
         List<Image> images = imageService.getAllImages();
         model.addAttribute("images", images);
         return "index";
+    }
+
+    private boolean checkWeakPassword(String password) {
+        int passwordScore = calculatePasswordScore(password);
+        if (passwordScore < 3) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    private static int calculatePasswordScore(String password) {
+        int passwordScore = 0;
+        if (password.length() < 3) {
+            return 0;
+        }
+        else if (password.length() >= 3) {
+            if (password.matches("(?=.*[0-9]).*") ) {
+                passwordScore +=1;
+            }
+            if (password.matches("(?=.*[A-Za-z]).*")) {
+                passwordScore +=1;
+            }
+            if (password.matches("(?=.*[~!@#$%^&*()_-]).*")) {
+                passwordScore +=1;
+            }
+        }
+        return passwordScore;
     }
 }
